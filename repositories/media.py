@@ -1,9 +1,12 @@
 from fastapi import HTTPException
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+
 from models.media import Media
 from schemas.media import MediaCreate, MediaStatus, MediaUpdate, MediaResponse
+
 from core.base import BaseRepository
 from utils.pagination import PageParams, pagination, Page
 
@@ -81,10 +84,10 @@ class MediaRepository(BaseRepository):
     # Media soft delete
     async def delete_media(self, media_id: int) -> bool | None:
         media = await self.session.get(Media, media_id)
-
         if not media:
             return None
 
-        await self.session.delete(media)
+        media.status = MediaStatus.deleted
+        media.deleted_at = datetime.now(timezone.utc)
         await self.session.commit()
         return True

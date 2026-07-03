@@ -1,16 +1,16 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 class PostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
 
+
+class PostCreate(BaseModel):
     title: str
     content: str
-
-
-class PostCreate(PostUpdate):
-
     author_id: int
-    content: str
 
 
 

@@ -1,8 +1,12 @@
 from fastapi import HTTPException
+from datetime import timezone, datetime
+
 from sqlalchemy import select, insert
 from sqlalchemy.orm import selectinload
+
 from models.user import User
 from schemas.user import UserCreate, UserUpdate
+
 from core.base import BaseRepository
 from utils.pagination import PageParams, pagination
 
@@ -10,22 +14,23 @@ from utils.pagination import PageParams, pagination
 class UserRepository(BaseRepository):
 
     async def get_all_user(self, page_params: PageParams | None = None):
-        """
-        Barcha userlar
-        """
-        query = select(User).options(selectinload(User.posts))
-
+        query = (
+            select(User)
+            .where(User.is_deleted == False)
+            .options(selectinload(User.posts))
+        )
         if page_params:
             return await pagination(self.session, query, page_params)
-
         result = await self.session.execute(query)
         return result.scalars().all()
 
+
     async def get_one_user(self, user_id: int):
-        """
-        ID bo‘yicha user
-        """
-        query = select(User).where(User.id == user_id).options(selectinload(User.posts))
+        query = (
+            select(User)
+            .where(User.id == user_id, User.is_deleted == False)
+            .options(selectinload(User.posts))
+        )
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
@@ -78,12 +83,12 @@ class UserRepository(BaseRepository):
 
         return user
 
-    # async def delete_user(self, user_id: int) -> bool:
-    #     """
-    #     Userni o‘chirish
-    #     """
-    #     query = delete(User).where(User.id == user_id)
-    #     result = await self.session.execute(query)
-    #     await self.session.commit()
+    async def delete_user(self, user_id: int) -> bool | None:
+        user = await self.session.get(User, user_id)
+        if not user or user.is_deleted:
+            return None
 
-    #     return result.rowcount > 0
+        user.is_deleted = True
+        user.deleted_at = datetime.now(timezone.utc)
+        await self.session.commit()
+        return True
