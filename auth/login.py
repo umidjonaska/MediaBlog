@@ -79,7 +79,6 @@ async def refresh_access_token(
             "email": user.email,
             "username": user.username,
             "role": user.role,
-            "rasm": user.rasm,
         },
         "role": user.role,
         "token_type": "bearer",

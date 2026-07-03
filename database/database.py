@@ -1,3 +1,4 @@
+from typing import AsyncGenerator
 from core.config import config
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
@@ -9,12 +10,14 @@ SQLALCHEMY_DATABASE_URL = (
     f"{config.database.db_database}"
 )
 
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True,
-                             pool_size=20, max_overflow=20,
-                             pool_pre_ping=True, # Ulanish uzilib qolsa qayta tiklaydi. Harbir so'rovdan oldin ping yuboradi agar server bilan aloqa bo'lmasa uni ulaydi.
-                             )
+engine = create_async_engine(
+    SQLALCHEMY_DATABASE_URL,
+    echo=True,
+    pool_size=20,
+    max_overflow=20,
+    pool_pre_ping=True,
+)
 
-# SessionLocal yaratish
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
@@ -26,12 +29,12 @@ class Base(DeclarativeBase):
     pass
 
 
-async def get_db() -> AsyncSession:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as db:
         try:
             yield db
-        except Exception as e:
-            await db.rollback()  # Xato yuzaga kelsa, tranzaksiyani orqaga qaytarish
-            raise e  # Xatoni qaytarish
+        except Exception:
+            await db.rollback()
+            raise
         finally:
-            await db.close()  # Sessiyani yopish
+            await db.close()

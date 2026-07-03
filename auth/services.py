@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import orjson
 
@@ -22,7 +22,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 # PASSWORD
-async def get_password_hash(password: str) -> str:
+def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
@@ -50,7 +50,7 @@ async def verify_token(token: str) -> dict:
 
 async def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(
+    expire = datetime.now(timezone.utc) + timedelta(
         minutes=config.app.access_token_expire_minutes
     )
     to_encode.update({"exp": expire})
@@ -63,7 +63,7 @@ async def create_access_token(data: dict) -> str:
 
 async def create_refresh_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(
+    expire = datetime.now(timezone.utc) + timedelta(
         days=config.app.refresh_token_expire_days
     )
     to_encode.update({"exp": expire})
@@ -72,8 +72,6 @@ async def create_refresh_token(data: dict) -> str:
         config.app.secret_key,
         algorithm=config.app.algorithm
     )
-
-
 
 # USER HELPERS
 def serialize_user(user: User) -> dict:
@@ -128,15 +126,9 @@ async def get_current_user(
     redis_cli = RedisCLI()
 
     cached = redis_cli.get(email)
-
-    # 🔹 CACHE HIT
     if cached:
-        if isinstance(cached, (bytes, bytearray)):
-            cached = cached.decode("utf-8")
+        return cached  # allaqachon dict, qo'shimcha dekodlash kerak emas
 
-        return orjson.loads(cached)
-
-    # 🔹 CACHE MISS → DB GA BORISH
     user = await get_user_by_email(db, email)
 
     if not user:
@@ -144,11 +136,7 @@ async def get_current_user(
 
     user_data = serialize_user(user)
 
-    redis_cli.set(
-        email,
-        orjson.dumps(user_data),
-        ex=3600
-    )
+    redis_cli.set(email, user_data, ex=3600)  # to'g'ridan-to'g'ri dict beriladi
 
     return user_data
 
