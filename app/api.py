@@ -5,8 +5,7 @@ from fastapi.responses import ORJSONResponse
 
 from app.core.config import config
 
-from app.routes import comment, media, post
-from app.routes import user
+from app.routes import comment, media, post, user, order
 
 from app.auth import login
 
@@ -17,7 +16,9 @@ api.include_router(user.router, tags=["Users"])
 api.include_router(comment.router, tags=["Comments"])
 api.include_router(post.router, tags=["Posts"])
 api.include_router(media.router, tags=["Media"])
+api.include_router(order.router, tags=["Order"])
 api.include_router(login.auth_route, tags=["Auth"])
+# api.include_router(login.auth_route, tags=["Auth"])
 
 # Admin
 app = FastAPI(

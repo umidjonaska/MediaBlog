@@ -14,7 +14,7 @@ router = APIRouter()
 async def router_get_all(
     page_params: PageParams = Depends(get_page_params),
     _service: UserService = Depends(user_service_dp),
-    current_user: dict = Depends(get_current_user),
+    # current_user: dict = Depends(get_current_user),
 ):
     return await _service.get_all_user(page_params)
 
