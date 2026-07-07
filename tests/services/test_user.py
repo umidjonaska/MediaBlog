@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from services.user import UserService
+from app.services.user import UserService
 from fastapi import HTTPException
 
 @pytest.fixture

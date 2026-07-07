@@ -4,8 +4,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from database.database import Base
-from core.config import config as settings
+from app.database.database import Base
+from app.core.config import config as settings
 
 
 config = context.config
@@ -25,10 +25,10 @@ config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URL)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from models.comment import Comment
-from models.post import Post
-from models.user import User
-from models.media import Media
+from app.models.comment import Comment
+from app.models.post import Post
+from app.models.user import User
+from app.models.media import Media
 
 target_metadata = Base.metadata
 

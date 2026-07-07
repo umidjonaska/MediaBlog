@@ -3,13 +3,13 @@ import pytest_asyncio
 
 from sqlalchemy import select
 
-from models.comment import Comment
-from repositories.user import UserRepository
-from repositories.post import PostRepository
-from repositories.comment import CommentRepository
-from schemas.user import UserCreate, UserRole
-from schemas.post import PostCreate
-from schemas.comment import CommentCreate, CommentUpdate
+from app.models.comment import Comment
+from app.repositories.user import UserRepository
+from app.repositories.post import PostRepository
+from app.repositories.comment import CommentRepository
+from app.schemas.user import UserCreate, UserRole
+from app.schemas.post import PostCreate
+from app.schemas.comment import CommentCreate, CommentUpdate
 
 
 @pytest_asyncio.fixture

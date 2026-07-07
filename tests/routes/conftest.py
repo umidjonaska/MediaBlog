@@ -1,9 +1,9 @@
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 
-from api import app
-from database.database import get_db
-from auth.services import get_current_user
+from app.api import app
+from app.database.database import get_db
+from app.auth.services import get_current_user
 
 
 @pytest_asyncio.fixture

@@ -1,12 +1,14 @@
 import pytest
-from unittest.mock import AsyncMock
-from services.post import PostService
+from unittest.mock import AsyncMock, MagicMock
 from fastapi import HTTPException
-from core import exception
+
+from app.services.post import PostService
+
 
 @pytest.fixture
 def repo():
     return AsyncMock()
+
 
 @pytest.fixture
 def service(repo):
@@ -22,54 +24,96 @@ async def test_get_all_post(repo, service):
     assert result == ["post1", "post2"]
     repo.get_all_post.assert_called_once()
 
+
 @pytest.mark.asyncio
 async def test_get_one_post(repo, service):
-    repo.get_one_post.return_value = {'id': 1}
+    repo.get_one_post.return_value = {"id": 1}
 
     result = await service.get_one_post(1)
 
-    assert result == {'id': 1}
+    assert result == {"id": 1}
     repo.get_one_post.assert_called_once_with(1)
 
 
 @pytest.mark.asyncio
 async def test_create_post(repo, service):
     payload = AsyncMock()
+    repo.create_post.return_value = {"id": 1, "title": "test"}
 
     result = await service.create_post(payload)
 
-    assert result.status_code == 201
+    assert result == {"id": 1, "title": "test"}
     repo.create_post.assert_called_once_with(payload)
+
 
 @pytest.mark.asyncio
 async def test_update_post_not_found(repo, service):
     repo.get_one_post.return_value = None
 
-    result = await service.update_post(1, {"name": "test"})
+    with pytest.raises(HTTPException) as exc_info:
+        await service.update_post(1, {"title": "test"}, current_user_id=1)
 
-    assert result.status_code == 404
+    assert exc_info.value.status_code == 404
+    repo.update_post.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_update_post_forbidden(repo, service):
+    existing_post = MagicMock(author_id=1)
+    repo.get_one_post.return_value = existing_post
+
+    with pytest.raises(HTTPException) as exc_info:
+        await service.update_post(1, {"title": "test"}, current_user_id=2)
+
+    assert exc_info.value.status_code == 403
+    repo.update_post.assert_not_called()
+
 
 @pytest.mark.asyncio
 async def test_update_post_success(repo, service):
     payload = {"title": "new"}
+    existing_post = MagicMock(author_id=1)
 
-    repo.get_one_post.return_value = {"id": 1}
+    repo.get_one_post.return_value = existing_post
     repo.update_post.return_value = {"id": 1, "title": "new"}
 
-    result = await service.update_post(1, payload)
+    result = await service.update_post(1, payload, current_user_id=1)
 
     assert result == {"id": 1, "title": "new"}
     repo.update_post.assert_called_once_with(1, payload)
 
+
+@pytest.mark.asyncio
+async def test_delete_post_not_found(repo, service):
+    repo.get_one_post.return_value = None
+
+    with pytest.raises(HTTPException) as exc_info:
+        await service.delete_post(1, current_user_id=1)
+
+    assert exc_info.value.status_code == 404
+    repo.delete_post.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_delete_post_forbidden(repo, service):
+    existing_post = MagicMock(author_id=1)
+    repo.get_one_post.return_value = existing_post
+
+    with pytest.raises(HTTPException) as exc_info:
+        await service.delete_post(1, current_user_id=2)
+
+    assert exc_info.value.status_code == 403
+    repo.delete_post.assert_not_called()
+
+
 @pytest.mark.asyncio
 async def test_delete_post_success(repo, service):
-    repo.get_one_post.return_value = {"id": 1}
-    repo.delete_post.return_value = {"detail": "deleted"}
+    existing_post = MagicMock(author_id=1)
+    repo.get_one_post.return_value = existing_post
+    repo.delete_post.return_value = True
 
-    result = await service.delete_post(1)
+    result = await service.delete_post(1, current_user_id=1)
 
-    assert result == {"detail": "deleted"}
-
+    assert result is True
     repo.get_one_post.assert_called_once_with(1)
     repo.delete_post.assert_called_once_with(1)
-

@@ -4,9 +4,9 @@ import pytest_asyncio
 from fastapi import HTTPException
 from sqlalchemy import select
 
-from models.user import User
-from repositories.user import UserRepository
-from schemas.user import UserCreate, UserUpdate, UserRole
+from app.models.user import User
+from app.repositories.user import UserRepository
+from app.schemas.user import UserCreate, UserUpdate, UserRole
 
 
 @pytest_asyncio.fixture

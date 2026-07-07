@@ -8,7 +8,12 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy import text
 
-from database.database import Base
+from app.database.database import Base
+
+from app.models.user import User
+from app.models.post import Post
+from app.models.comment import Comment
+from app.models.media import Media
 
 DATABASE_URL = "postgresql+asyncpg://postgres:1234@127.0.0.1/media_blog_test"
 

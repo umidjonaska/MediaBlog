@@ -4,11 +4,11 @@ import pytest_asyncio
 from fastapi import HTTPException
 from sqlalchemy import select
 
-from models.post import Post
-from repositories.user import UserRepository
-from repositories.post import PostRepository
-from schemas.user import UserCreate, UserRole
-from schemas.post import PostCreate, PostUpdate
+from app.models.post import Post
+from app.repositories.user import UserRepository
+from app.repositories.post import PostRepository
+from app.schemas.user import UserCreate, UserRole
+from app.schemas.post import PostCreate, PostUpdate
 
 
 @pytest_asyncio.fixture

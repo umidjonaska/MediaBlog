@@ -5,12 +5,12 @@ from typing import Any
 
 from sqlalchemy import select
 
-from models.media import Media
-from repositories.user import UserRepository
-from repositories.media import MediaRepository
-from schemas.user import UserCreate, UserRole
-from schemas.media import MediaCreate, MediaUpdate, MediaType, MediaStatus
-from utils.pagination import PageParams
+from app.models.media import Media
+from app.repositories.user import UserRepository
+from app.repositories.media import MediaRepository
+from app.schemas.user import UserCreate, UserRole
+from app.schemas.media import MediaCreate, MediaUpdate, MediaType, MediaStatus
+from app.utils.pagination import PageParams
 
 
 @pytest_asyncio.fixture

@@ -1,0 +1,49 @@
+from fastapi import HTTPException, status
+from fastapi.concurrency import run_in_threadpool
+
+from app.core.base import BaseService
+from app.core import exception
+from app.utils.pagination import PageParams
+
+from app.auth.services import get_password_hash
+from app.repositories.user import UserRepository
+from app.schemas.user import UserCreate, UserUpdate
+
+
+class UserService(BaseService[UserRepository]):
+    async def get_all_user(self, page_params: PageParams | None = None):
+        return await self.repository.get_all_user(page_params)
+
+    async def get_one_user(self, user_id: int):
+        return await self.repository.get_one_user(user_id)
+
+    async def create_user(self, payload: UserCreate):
+        payload.password_hash = get_password_hash(payload.password_hash)
+
+        user = await self.repository.create_user(payload)
+        return {"id": user.id}
+
+    async def update_user(self, user_id: int, payload: UserUpdate):
+        user = await self.repository.get_one_user(user_id)
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+        if payload.password_hash:
+            payload.password_hash = get_password_hash(payload.password_hash)
+
+        return await self.repository.update_user(user_id, payload)
+
+    async def delete_user(self, user_id: int):
+        user = await self.repository.get_one_user(user_id)
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+        return await self.repository.delete_user(user_id)

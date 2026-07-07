@@ -3,9 +3,9 @@ import pytest_asyncio
 
 from sqlalchemy import select
 
-from models.user import User
-from repositories.user import UserRepository
-from schemas.user import UserCreate, UserRole
+from app.models.user import User
+from app.repositories.user import UserRepository
+from app.schemas.user import UserCreate, UserRole
 
 
 @pytest_asyncio.fixture
