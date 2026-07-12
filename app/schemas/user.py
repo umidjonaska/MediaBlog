@@ -5,6 +5,7 @@ from typing import Optional
 
 
 class UserRole(str, Enum):
+    SUPERADMIN = 'superadmin'
     ADMIN = 'admin'
     USER = 'user'
 

@@ -23,6 +23,14 @@ class UserService(BaseService[UserRepository]):
         user = await self.repository.create_user(payload)
         return {"id": user.id}
 
+    async def create_admin_user(self, payload: UserCreate):
+        """
+        Faqat superadmin chaqiradi - role admin/superadmin bo'lishi mumkin.
+        """
+        payload.password_hash = get_password_hash(payload.password_hash)
+        user = await self.repository.create_user(payload)
+        return {"id": user.id}
+
     async def update_user(self, user_id: int, payload: UserUpdate):
         user = await self.repository.get_one_user(user_id)
 

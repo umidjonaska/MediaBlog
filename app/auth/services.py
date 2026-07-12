@@ -145,11 +145,17 @@ async def get_current_user(
 async def get_current_admin_user(
     current_user: dict = Depends(get_current_user)
 ):
-    if UserRole(current_user["role"]) != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=403,
-            detail="Ruxsat yo‘q"
-        )
+    role = UserRole(current_user["role"])
+    if role not in (UserRole.ADMIN, UserRole.SUPERADMIN):
+        raise HTTPException(status_code=403, detail="Ruxsat yo'q")
+    return current_user
+
+
+async def get_current_superadmin_user(
+    current_user: dict = Depends(get_current_user)
+):
+    if UserRole(current_user["role"]) != UserRole.SUPERADMIN:
+        raise HTTPException(status_code=403, detail="Faqat superadmin uchun ruxsat")
     return current_user
 
 
