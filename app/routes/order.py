@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from utils.pagination import Page, PageParams, get_page_params
-from deps import order_service_dp
-from auth.services import get_current_admin_user, get_current_superadmin_user
+from app.utils.pagination import Page, PageParams, get_page_params
+from app.deps import order_service_dp
+from app.auth.services import get_current_admin_user, get_current_superadmin_user
 
-from services.order import OrderService
-from schemas.order import OrderResponse, OrderCreate, OrderUpdate
+from app.services.order import OrderService
+from app.schemas.order import OrderResponse, OrderCreate, OrderUpdate
 
 router = APIRouter()
 

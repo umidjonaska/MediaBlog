@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status
 
-from core.base import BaseService
-from repositories.order import OrderRepository
-from schemas.order import OrderCreate, OrderUpdate
-from schemas.user import UserRole
-from utils.pagination import PageParams
+from app.core.base import BaseService
+from app.repositories.order import OrderRepository
+from app.schemas.order import OrderCreate, OrderUpdate
+from app.schemas.user import UserRole
+from app.utils.pagination import PageParams
 
 
 class OrderService(BaseService[OrderRepository]):
